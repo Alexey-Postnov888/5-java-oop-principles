@@ -7,8 +7,8 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
 public class RotationFileHandler implements MessageHandler {
-    private String Path;
-    private ChronoUnit Rotation;
+    private final String Path;
+    private final ChronoUnit Rotation;
 
     public RotationFileHandler(String path, ChronoUnit rotation) {
         Path = path;
@@ -17,7 +17,7 @@ public class RotationFileHandler implements MessageHandler {
 
     @Override
     public void log(String message) {
-        LocalDateTime dateNow  = LocalDateTime.now().truncatedTo(Rotation);
+        LocalDateTime dateNow = LocalDateTime.now().truncatedTo(Rotation);
         File file = new File(Path + dateNow.toString().replace(':', '#') + ".txt");
         try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
             fileOutputStream.write(message.getBytes());

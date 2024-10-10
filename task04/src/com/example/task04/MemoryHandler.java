@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MemoryHandler implements MessageHandler {
-    private int MaxSize;
-    private ArrayList<String> Messages = new ArrayList<>();
-    private ArrayList<MessageHandler> Handlers = new ArrayList<>();
+    private final int MaxSize;
+    private final ArrayList<String> Messages = new ArrayList<>();
+    private final ArrayList<MessageHandler> Handlers = new ArrayList<>();
 
-    public  MemoryHandler(int maxSize, MessageHandler... handlers) {
+    public MemoryHandler(int maxSize, MessageHandler... handlers) {
         MaxSize = maxSize;
         ArrayList<MessageHandler> newHandlers = new ArrayList<>(Arrays.asList(handlers));
         Handlers.addAll(newHandlers);

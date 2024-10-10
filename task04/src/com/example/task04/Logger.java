@@ -3,23 +3,34 @@ package com.example.task04;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Logger {
     private static final HashMap<String, Logger> loggers = new HashMap<>();
-    private final String Name;
-    private ErrorLevel Level;
+    private static ArrayList<MessageHandler> handlers = new ArrayList<>();
+    private final String name;
+    private ErrorLevel level;
 
     public Logger(String name) {
-        Name = name;
-        Level = ErrorLevel.INFO;
-        loggers.put(name, this);
+        this.name = name;
+        this.level = ErrorLevel.INFO;
+        handlers.add(new ConsoleHandler());
+        loggers.put(this.name, this);
     }
 
-    public Logger(String name, ErrorLevel level) {
-        Name = name;
-        Level = level;
-        loggers.put(name, this);
+    public Logger(String name, ArrayList<MessageHandler> messageHandlers) {
+        this.name = name;
+        this.level = ErrorLevel.INFO;
+        handlers = messageHandlers;
+        loggers.put(this.name, this);
+    }
+
+    public Logger(String name, ErrorLevel level, ArrayList<MessageHandler> messageHandlers) {
+        this.name = name;
+        this.level = level;
+        handlers = messageHandlers;
+        loggers.put(this.name, this);
     }
 
     public static Logger getLogger(String name) {
@@ -27,38 +38,36 @@ public class Logger {
         return loggers.get(name);
     }
 
-    public String getName() {
-        return Name;
-    }
-
     public ErrorLevel getLevel() {
-        return Level;
+        return level;
     }
 
     public void setLevel(ErrorLevel level) {
-        Level = level;
+        this.level = level;
     }
 
+    public String getName() {
+        return name;
+    }
 
-
-    public void log(ErrorLevel level, String message) {
-        if (Level.ordinal() <= level.ordinal()) {
+    private void log(ErrorLevel level, String message) {
+        if (this.level.ordinal() <= level.ordinal()) {
             String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd hh:mm:ss"));
-            String printMessage = MessageFormat.format("[{0}] {1} {2} - {3}", level, date, Name, message);
-            System.out.println(printMessage);
+            String printedMessage = MessageFormat.format("[{0}] {1} {2} - {3}", level, date, name, message);
+
+            for (MessageHandler messageHandler : handlers)
+                messageHandler.log(printedMessage);
+
         }
     }
 
-    public void log(ErrorLevel level, MessageFormat format, Object... objects) {
-        log(level, format.format(objects));
-    }
+    private void log(ErrorLevel level, String format, Object... args) {
+        if (this.level.ordinal() <= level.ordinal()) {
+            String message = MessageFormat.format(format, args);
 
-    public void debug(String message) {
-        log(ErrorLevel.DEBUG, message);
-    }
-
-    public void debug(String format, Object... objects) {
-        log(ErrorLevel.DEBUG, format, objects);
+            for (MessageHandler messageHandler : handlers)
+                messageHandler.log(message);
+        }
     }
 
     public void info(String message) {
@@ -69,13 +78,22 @@ public class Logger {
         log(ErrorLevel.INFO, format, objects);
     }
 
+    public void debug(String message) {
+        log(ErrorLevel.DEBUG, message);
+    }
+
+    public void debug(String format, Object... objects) {
+        log(ErrorLevel.DEBUG, format, objects);
+    }
+
     public void warning(String message) {
         log(ErrorLevel.WARNING, message);
     }
 
-    public void warning(String format, Object... objects) {
-        log(ErrorLevel.WARNING, format, objects);
+    public void warning(String message, Object... objects) {
+        log(ErrorLevel.WARNING, message);
     }
+
 
     public void error(String message) {
         log(ErrorLevel.ERROR, message);
